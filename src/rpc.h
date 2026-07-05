@@ -1,8 +1,8 @@
 #pragma once
 
-#include "bus.h"
+#include "memmap.h"
 
 struct RPC {
-    RPC(const Bus &bus);
-    const Bus &bus;
+    RPC(const MemMap &mem);
+    const MemMap &mem;
 };

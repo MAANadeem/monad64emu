@@ -1,3 +1,4 @@
 #include "rpc.h"
+#include "memmap.h"
 
-RPC::RPC(const Bus &bus) : bus(bus) {}
+RPC::RPC(const MemMap &mem) : mem(mem) {}

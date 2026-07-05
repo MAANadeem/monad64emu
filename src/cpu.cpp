@@ -1,4 +1,5 @@
 #include "cpu.h"
+#include <iostream>
 #include <sstream>
 #include <stdexcept>
 
@@ -16,8 +17,8 @@ void CP0::PowerOnReset() {
     reg_config.Be = RegConfig::RegConfigBe::BigEndian;
 }
 
-CPU::CPU(const Bus &bus)
-    : GPR{}, FPR{}, PC{}, HI{}, LO{}, LLBit{}, FCR0{}, FCR31{}, bus(bus) {}
+CPU::CPU(const MemMap &mem)
+    : GPR{}, FPR{}, PC{}, HI{}, LO{}, LLBit{}, FCR0{}, FCR31{}, mem(mem) {}
 
 void CPU::PowerOnReset() {
     cp0.PowerOnReset();
@@ -27,14 +28,20 @@ void CPU::PowerOnReset() {
 void CPU::Run() {
     PowerOnReset();
     for (;;) {
-        u32 opcode = ReadWord(PC);
-        Panic(opcode);
+        u32 instruction = ReadWord(PC);
+        u8 opcode = (instruction >> 26) & 0b111111;
+        if (opcode == 0b001111) {
+            std::cout << "LUI works" << std::endl;
+        } else {
+            Panic(instruction);
+        }
+        PC += 4;
     }
 }
 
 u32 CPU::ReadWord(u64 virtual_address) {
     u64 physical_address = VirtualAddressToPhysicalAddress(virtual_address);
-    return bus.ReadWordPhys(physical_address);
+    return mem.ReadWordPhys(physical_address);
 }
 
 u64 CPU::VirtualAddressToPhysicalAddress(u64 virtual_address) {

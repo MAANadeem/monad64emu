@@ -1,7 +1,7 @@
 #pragma once
 
 #include "base.h"
-#include "bus.h"
+#include "memmap.h"
 constexpr u8 NUM_GPR = 32;
 constexpr u8 NUM_FPR = 32;
 
@@ -20,7 +20,7 @@ struct CP0 {
 
 class CPU {
   public:
-    CPU(const Bus &bus);
+    CPU(const MemMap &mem);
     void PowerOnReset();
     void Run();
 
@@ -45,5 +45,5 @@ class CPU {
     f32 FCR0;
     f32 FCR31;
 
-    const Bus &bus;
+    const MemMap &mem;
 };

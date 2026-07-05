@@ -1,8 +1,7 @@
 #pragma once
 
-#include "bus.h"
 #include "cpu.h"
-#include "ram.h"
+#include "memmap.h"
 #include "rpc.h"
 
 constexpr u16 PIF_ROM_SIZE = 2048;
@@ -14,7 +13,6 @@ class N64 {
 
   private:
     MemMap mem;
-    Bus bus;
     CPU cpu;
     RPC rpc;
 };

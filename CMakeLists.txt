@@ -32,12 +32,11 @@ endif()
 # Executable
 # --------------------
 add_executable(n64_emulator
-    src/main.cpp
+    src/memmap.cpp
     src/cpu.cpp
-    src/ram.cpp
     src/rpc.cpp
-    src/bus.cpp
     src/N64.cpp
+    src/main.cpp
 )
 
 target_include_directories(n64_emulator PRIVATE include)
