@@ -1,12 +1,9 @@
-#include "base.h"
+#pragma once
 
-struct CPU;
-struct RAM;
-struct RPC;
+#include "ram.h"
 
 struct Bus {
-  Bus(const CPU &cpu, const RAM &ram, const RPC &rpc);
-  const CPU &cpu_signal;
-  const RAM &ram_signal;
-  const RPC &rpc_signal;
+    Bus(const MemMap &mem);
+    u32 ReadWordPhys(u32 physical_address) const;
+    const MemMap &mem;
 };

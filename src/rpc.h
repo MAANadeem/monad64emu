@@ -1,5 +1,8 @@
-#include "base.h"
+#pragma once
+
+#include "bus.h"
 
 struct RPC {
-  RPC() = default;
+    RPC(const Bus &bus);
+    const Bus &bus;
 };

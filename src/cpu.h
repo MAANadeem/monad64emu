@@ -1,42 +1,49 @@
 #pragma once
 
 #include "base.h"
-
+#include "bus.h"
 constexpr u8 NUM_GPR = 32;
 constexpr u8 NUM_FPR = 32;
 
 struct RegConfig {
-  enum RegConfigEp { D, DxxDxx, RFU };
-  enum RegConfigBe { LittleEndian, BigEndian };
-  RegConfigEp Ep;
-  RegConfigBe Be;
+    enum RegConfigEp { D, DxxDxx, RFU };
+    enum RegConfigBe { LittleEndian, BigEndian };
+    RegConfigEp Ep;
+    RegConfigBe Be;
 };
 
 struct CP0 {
-  CP0();
-  void PowerOnReset();
-  RegConfig reg_config;
+    CP0();
+    void PowerOnReset();
+    RegConfig reg_config;
 };
 
-struct CPU {
-  CPU();
+class CPU {
+  public:
+    CPU(const Bus &bus);
+    void PowerOnReset();
+    void Run();
 
-  void PowerOnReset();
+    u32 ReadWord(u64 address);
+    u64 VirtualAddressToPhysicalAddress(u64 virtual_address);
 
-  // Coprocessor
-  CP0 cp0;
+  private:
+    // Coprocessor
+    CP0 cp0;
 
-  // Registers
-  u64 GPR[NUM_GPR];
-  f64 FPR[NUM_FPR];
+    // Registers
+    u64 GPR[NUM_GPR];
+    f64 FPR[NUM_FPR];
 
-  u64 PC;
+    u64 PC;
 
-  u64 HI;
-  u64 LO;
+    u64 HI;
+    u64 LO;
 
-  bool LLBit;
+    bool LLBit;
 
-  f32 FCR0;
-  f32 FCR31;
+    f32 FCR0;
+    f32 FCR31;
+
+    const Bus &bus;
 };
