@@ -33,6 +33,11 @@ endif()
 # --------------------
 add_executable(n64_emulator
     src/main.cpp
+    src/cpu.cpp
+    src/ram.cpp
+    src/rpc.cpp
+    src/bus.cpp
+    src/N64.cpp
 )
 
 target_include_directories(n64_emulator PRIVATE include)

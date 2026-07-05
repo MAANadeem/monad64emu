@@ -1,7 +1,9 @@
 build/
+ROMs/
 *.o
 *.exe
 *.log
 *.bin
+*.sh
 .vscode/
 .cache/
