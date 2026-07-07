@@ -25,13 +25,18 @@ void CPU::PowerOnReset() {
     PC = 0xffffffffbfc00000; // TODO: make this a constant
 }
 
+// TODO: update PC before decode and execute
 void CPU::Run() {
     PowerOnReset();
     for (;;) {
         u32 instruction = ReadWord(PC);
         u8 opcode = (instruction >> 26) & 0b111111;
         if (opcode == 0b001111) {
-            std::cout << "LUI works" << std::endl;
+            u16 imm = instruction & 0xffff;
+            u8 rt = (instruction >> 16) & 0b11111;
+            std::cout << "Before: " << (int)rt << " : " << GPR[rt] << std::endl;
+            GPR[rt] = imm;
+            std::cout << "After: " << (int)rt << " : " << GPR[rt] << std::endl;
         } else {
             Panic(instruction);
         }
