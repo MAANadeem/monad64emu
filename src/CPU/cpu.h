@@ -1,22 +1,10 @@
 #pragma once
 
-#include "base.h"
-#include "memmap.h"
+#include "../base.h"
+#include "../memmap.h"
+#include "cp0.h"
 constexpr u8 NUM_GPR = 32;
 constexpr u8 NUM_FPR = 32;
-
-struct RegConfig {
-    enum RegConfigEp { D, DxxDxx, RFU };
-    enum RegConfigBe { LittleEndian, BigEndian };
-    RegConfigEp Ep;
-    RegConfigBe Be;
-};
-
-struct CP0 {
-    CP0();
-    void PowerOnReset();
-    RegConfig reg_config;
-};
 
 class CPU {
   public:
@@ -26,6 +14,7 @@ class CPU {
 
     u32 ReadWord(u64 address);
     u64 VirtualAddressToPhysicalAddress(u64 virtual_address);
+    void DecodeAndExecute(u32 instruction);
 
   private:
     // Coprocessor

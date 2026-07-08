@@ -10,37 +10,21 @@ inline void Panic(u32 address) {
     throw std::runtime_error(ss.str());
 }
 
-CP0::CP0() {}
-
-void CP0::PowerOnReset() {
-    reg_config.Ep = RegConfig::RegConfigEp::D;
-    reg_config.Be = RegConfig::RegConfigBe::BigEndian;
-}
-
 CPU::CPU(const MemMap &mem)
     : GPR{}, FPR{}, PC{}, HI{}, LO{}, LLBit{}, FCR0{}, FCR31{}, mem(mem) {}
 
 void CPU::PowerOnReset() {
     cp0.PowerOnReset();
-    PC = 0xffffffffbfc00000; // TODO: make this a constant
+    PC = 0xffffffffbfc00000 - 4; // TODO: make this a constant
 }
 
 // TODO: update PC before decode and execute
 void CPU::Run() {
     PowerOnReset();
     for (;;) {
-        u32 instruction = ReadWord(PC);
-        u8 opcode = (instruction >> 26) & 0b111111;
-        if (opcode == 0b001111) {
-            u16 imm = instruction & 0xffff;
-            u8 rt = (instruction >> 16) & 0b11111;
-            std::cout << "Before: " << (int)rt << " : " << GPR[rt] << std::endl;
-            GPR[rt] = imm;
-            std::cout << "After: " << (int)rt << " : " << GPR[rt] << std::endl;
-        } else {
-            Panic(instruction);
-        }
         PC += 4;
+        u32 instruction = ReadWord(PC);
+        DecodeAndExecute(instruction);
     }
 }
 
@@ -56,5 +40,25 @@ u64 CPU::VirtualAddressToPhysicalAddress(u64 virtual_address) {
         return virtual_address - 0xffffffffa0000000;
     } else {
         Panic(virtual_address);
+    }
+}
+
+void CPU::DecodeAndExecute(u32 instruction) {
+    u8 opcode = (instruction >> 26) & 0b111111;
+    switch (opcode) {
+    case 0b001111: {
+        u16 imm = instruction & 0xffff;
+        u8 rt = (instruction >> 16) & 0b11111;
+        std::cout << "Before: " << (int)rt << " : " << GPR[rt] << std::endl;
+        GPR[rt] = imm;
+        std::cout << "After: " << (int)rt << " : " << GPR[rt] << std::endl;
+
+    } break;
+    // case 0b010000: {
+    //     u8 rd = (instruction >> 11) & 0b11111;
+    //     u8 rt = (instruction >> 16) & 0b11111;
+    // } break;
+    default:
+        Panic(instruction);
     }
 }

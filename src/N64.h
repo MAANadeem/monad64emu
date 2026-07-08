@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cpu.h"
+#include "CPU/cpu.h"
 #include "memmap.h"
 #include "rpc.h"
 
