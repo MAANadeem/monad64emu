@@ -18,7 +18,6 @@ void CPU::PowerOnReset() {
     PC = 0xffffffffbfc00000 - 4; // TODO: make this a constant
 }
 
-// TODO: update PC before decode and execute
 void CPU::Run() {
     PowerOnReset();
     for (;;) {
@@ -46,6 +45,7 @@ u64 CPU::VirtualAddressToPhysicalAddress(u64 virtual_address) {
 void CPU::DecodeAndExecute(u32 instruction) {
     u8 opcode = (instruction >> 26) & 0b111111;
     switch (opcode) {
+    // lui
     case 0b001111: {
         u16 imm = instruction & 0xffff;
         u8 rt = (instruction >> 16) & 0b11111;
@@ -54,10 +54,18 @@ void CPU::DecodeAndExecute(u32 instruction) {
         std::cout << "After: " << (int)rt << " : " << GPR[rt] << std::endl;
 
     } break;
-    // case 0b010000: {
-    //     u8 rd = (instruction >> 11) & 0b11111;
-    //     u8 rt = (instruction >> 16) & 0b11111;
-    // } break;
+    // c0 operation
+    case 0b010000: {
+        std::cout << "Reached c0 operation" << std::endl;
+        u8 rd = (instruction >> 11) & 0b11111;
+        u8 rt = (instruction >> 16) & 0b11111;
+        u8 sub_op = (instruction >> 21) & 0b11111;
+        if (sub_op == 0b00100) {
+            cp0.WriteToReg(rd, GPR[rt]);
+        } else {
+            Panic(instruction);
+        }
+    } break;
     default:
         Panic(instruction);
     }
