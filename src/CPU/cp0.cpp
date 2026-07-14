@@ -3,15 +3,18 @@
 CP0::CP0() {}
 
 void CP0::PowerOnReset() {
-    reg_config.ep = RegConfig::Ep::D;
-    reg_config.be = RegConfig::Be::BigEndian;
+    reg_config.data_transfer_pattern = RegConfig::DataTransferPattern::D;
+    reg_config.endianness = RegConfig::Endianness::Big;
 }
 
-void CP0::WriteToReg(u8 reg_num, u32 new_reg_value) {
+void CP0::WriteToReg(u8 reg_num, u64 new_reg_value) {
     switch (reg_num) {
     // status
     case 12: {
-        reg_status.Write(new_reg_value);
+        reg_status.Write((u32)new_reg_value);
+    } break;
+    case 16: {
+        reg_config.Write((u32)new_reg_value);
     } break;
     default:
         throw "No corresponding cp0 reg";
@@ -20,6 +23,7 @@ void CP0::WriteToReg(u8 reg_num, u32 new_reg_value) {
 
 void RegStatus::Write(u32 new_reg) {
     raw = new_reg;
+    // investigate: which coprocessor is assigned to what bit?
     coprocessor_usability = {
         (new_reg & (1 << 31)) != 0, (new_reg & (1 << 30)) != 0,
         (new_reg & (1 << 29)) != 0, (new_reg & (1 << 28)) != 0};
@@ -51,4 +55,29 @@ void RegStatus::Write(u32 new_reg) {
     error_level = (new_reg & (1 << 2)) != 0;
     exception_level = (new_reg & (1 << 1)) != 0;
     interrupt_enable = (new_reg & (1 << 0)) != 0;
+}
+
+void RegConfig::Write(u32 new_reg) {
+    switch ((new_reg >> 24) & 0b1111) {
+    case 0:
+        data_transfer_pattern = DataTransferPattern::D;
+        break;
+    case 6:
+        data_transfer_pattern = DataTransferPattern::DxxDxx;
+        break;
+    default:
+        throw;
+        break;
+    }
+    switch ((new_reg >> 15) & 0b1) {
+    case 0:
+        endianness = Endianness::Little;
+        break;
+    case 1:
+        endianness = Endianness::Big;
+        break;
+    }
+
+    cu = (new_reg & (1 << 3)) != 0;
+    kseg0_cache_enabled = (new_reg & 0b111) != 0b010;
 }
