@@ -35,6 +35,7 @@ add_executable(n64_emulator
     src/memmap.cpp
     src/CPU/cpu.cpp
     src/CPU/cp0.cpp
+    src/CPU/instructions.cpp
     src/rpc.cpp
     src/N64.cpp
     src/main.cpp

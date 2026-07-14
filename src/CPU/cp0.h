@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../base.h"
+#include <array>
 
 struct RegConfig {
     enum Ep { D, DxxDxx, RFU };
@@ -8,8 +9,8 @@ struct RegConfig {
     Ep ep;
     Be be;
 };
-
-union StatusRegisterUnion {
+/*
+union RegStatus {
     u32 raw;
 
     struct {
@@ -17,7 +18,7 @@ union StatusRegisterUnion {
         u32 reduced_power : 1;
         u32 floating_point_regs : 1;
         u32 reverse_endianness : 1;
-        u32 diagnostic_status : 5; // TODO: set up representation
+        u32 diagnostic_status : 9; // TODO: set up representation
         u32 interrupt_mask : 8;    // TODO: set up representation
         u32 kernel_64_bit_addressing : 1;
         u32 supervisor_64_bit_addressing : 1;
@@ -28,31 +29,46 @@ union StatusRegisterUnion {
         u32 interrupt_enable : 1;
     } Fields;
 };
+*/
 
 struct RegStatus {
-    // diagnostic status struct
-    struct DS {
-        // instruction trace support
-        bool its;
-        // exception vector location - 0 -> normal, 1 -> bootstrap
-        bool bev;
-        // TLB  shutdown
-        bool ts;
-        // soft reset/NMI occurance
-        bool sr;
-        // cp0 condition
-        bool ch;
-    };
-    // interupt mask struct
-    struct IM {
-        bool timer_interrupt;
-        bool external_interrupt_write_req[5];
-        bool software_interrupt_cause_reg[2];
-    };
-    // operating mode enum
-    enum MODE { Kernel, Supervisor, User, Invalid };
+    u32 raw;
 
-    StatusRegisterUnion reg_bits;
+    // operating mode enum
+    enum MODE { Kernel = 0b00, Supervisor = 0b01, User = 0b10, Invalid = 0b11 };
+
+    // diagnostic status struct
+    struct {
+        // instruction supervisor_64_bit_addressingce support
+        bool instruction_trace_support;
+        // exception vector location - 0 -> normal, 1 -> bootstrap
+        bool exception_vector;
+        // TLB  shutdown
+        bool TLB_shutdown;
+        // soft reset/NMI occurance
+        bool soft_reset;
+        // cp0 condition
+        bool cp0_condition;
+    } diagnostic_status;
+
+    // interupt mask struct
+    struct {
+        bool timer_interrupt;
+        std::array<bool, 5> external_interrupt_write_req;
+        std::array<bool, 2> software_interrupt_cause_reg;
+    } interrupt_mask;
+
+    std::array<bool, 4> coprocessor_usability;
+    bool reduced_power;
+    bool floating_point_regs;
+    bool reverse_endianness;
+    bool kernel_64_bit_addressing;
+    bool supervisor_64_bit_addressing;
+    bool user_64_bit_addressing;
+    MODE mode;
+    bool error_level;
+    bool exception_level;
+    bool interrupt_enable;
 
     void Write(u32 new_reg_status);
 };
